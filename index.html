@@ -1,0 +1,1309 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="description" content="Kitty Tic Tac Toe: game tic tac toe kawaii bertema pink melawan AI kucing. Tiga tingkat kesulitan, skor persisten, dan efek suara.">
+<meta name="author" content="Kitty Studio">
+<meta name="theme-color" content="#FF6BA0">
+<meta name="color-scheme" content="light">
+<meta name="format-detection" content="telephone=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Kitty TTT">
+<meta name="mobile-web-app-capable" content="yes">
+<meta property="og:type" content="game">
+<meta property="og:title" content="Kitty Tic Tac Toe">
+<meta property="og:description" content="Tic tac toe kawaii bertema pink melawan AI kucing dengan 3 tingkat kesulitan.">
+<meta property="og:locale" content="id_ID">
+<meta property="og:site_name" content="Kitty Tic Tac Toe">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Kitty Tic Tac Toe">
+<meta name="twitter:description" content="Tic tac toe kawaii bertema pink melawan AI kucing.">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='52' r='38' fill='%23FFE0EC' stroke='%233E1B2B' stroke-width='4'/%3E%3Cpath d='M22 30 L18 8 L40 22' fill='%23FFE0EC' stroke='%233E1B2B' stroke-width='4' stroke-linejoin='round'/%3E%3Cpath d='M78 30 L82 8 L60 22' fill='%23FFE0EC' stroke='%233E1B2B' stroke-width='4' stroke-linejoin='round'/%3E%3Ccircle cx='38' cy='50' r='5' fill='%233E1B2B'/%3E%3Ccircle cx='62' cy='50' r='5' fill='%233E1B2B'/%3E%3Cpath d='M50 62 Q56 68 50 68 Q44 68 50 62' fill='%23D63B7D'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='52' r='38' fill='%23FFE0EC' stroke='%233E1B2B' stroke-width='4'/%3E%3Cpath d='M22 30 L18 8 L40 22' fill='%23FFE0EC' stroke='%233E1B2B' stroke-width='4' stroke-linejoin='round'/%3E%3Cpath d='M78 30 L82 8 L60 22' fill='%23FFE0EC' stroke='%233E1B2B' stroke-width='4' stroke-linejoin='round'/%3E%3Ccircle cx='38' cy='50' r='5' fill='%233E1B2B'/%3E%3Ccircle cx='62' cy='50' r='5' fill='%233E1B2B'/%3E%3C/svg%3E">
+<title>Kitty Tic Tac Toe</title>
+<style>
+:root{
+  --bg:#FFF3F7;
+  --bg-2:#FFE0EC;
+  --ink:#3E1B2B;
+  --pink:#FF6BA0;
+  --pink-deep:#D63B7D;
+  --lavender:#B58CD8;
+  --lavender-deep:#7E56A8;
+  --cream:#FFFCF7;
+  --shadow:#D63B7D;
+  --radius-lg:28px;
+  --radius-md:18px;
+  --radius-sm:12px;
+  --font-display:'Trebuchet MS','Segoe UI',system-ui,-apple-system,sans-serif;
+  --font-body:'Trebuchet MS','Segoe UI',system-ui,-apple-system,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%;height:100%}
+body{
+  font-family:var(--font-body);
+  background:
+    radial-gradient(circle at 15% 10%, #FFE0EC 0%, transparent 35%),
+    radial-gradient(circle at 85% 90%, #FFE0EC 0%, transparent 40%),
+    var(--bg);
+  color:var(--ink);
+  min-height:100dvh;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  overflow-x:hidden;
+  user-select:none;
+  -webkit-user-select:none;
+  -webkit-tap-highlight-color:transparent;
+  -webkit-touch-callout:none;
+  overscroll-behavior:none;
+  position:relative;
+}
+@supports (height:100dvh){body{min-height:100dvh}}
+
+.grain{
+  position:fixed;inset:0;pointer-events:none;z-index:1;
+  opacity:.06;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  mix-blend-mode:multiply;
+}
+
+#app{
+  position:relative;z-index:2;
+  flex:1;
+  display:flex;flex-direction:column;
+  max-width:640px;
+  width:100%;
+  margin:0 auto;
+  padding:
+    calc(env(safe-area-inset-top,0px) + 12px)
+    calc(env(safe-area-inset-right,0px) + 16px)
+    calc(env(safe-area-inset-bottom,0px) + 16px)
+    calc(env(safe-area-inset-left,0px) + 16px);
+  gap:12px;
+}
+
+/* Top bar */
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  background:var(--cream);
+  border:3px solid var(--ink);
+  border-radius:var(--radius-md);
+  padding:8px 12px;
+  box-shadow:4px 4px 0 var(--pink-deep);
+}
+.brand{display:flex;align-items:center;gap:8px;font-weight:900;font-size:1rem;letter-spacing:.3px}
+.brand .paw{width:24px;height:24px;display:block}
+.score-mini{display:flex;gap:6px;align-items:center;font-size:.8rem;font-weight:800}
+.score-mini .pill{
+  background:var(--bg-2);border:2px solid var(--ink);border-radius:999px;
+  padding:2px 8px;display:flex;align-items:center;gap:4px;min-height:26px;
+}
+.score-mini .pill .dot{width:10px;height:10px;border-radius:50%}
+.score-mini .pill.p .dot{background:var(--pink)}
+.score-mini .pill.d .dot{background:var(--ink)}
+.score-mini .pill.a .dot{background:var(--lavender-deep)}
+
+/* Screens */
+.screen{display:none;flex-direction:column;gap:16px;animation:fadeIn .35s ease}
+.screen.active{display:flex}
+
+/* Menu */
+.menu-hero{
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+  padding:20px 8px 8px;
+}
+.mascot{
+  width:120px;height:120px;
+  animation:bob 2.4s ease-in-out infinite;
+  filter:drop-shadow(4px 6px 0 var(--pink-deep));
+}
+@keyframes bob{
+  0%,100%{transform:translateY(0) rotate(-2deg)}
+  50%{transform:translateY(-6px) rotate(2deg)}
+}
+.title-lg{
+  font-family:var(--font-display);
+  font-size:clamp(2rem,7vw,2.8rem);
+  line-height:1.05;
+  text-align:center;
+  letter-spacing:-.5px;
+  color:var(--pink-deep);
+  text-shadow:
+    3px 3px 0 var(--ink),
+    0 0 0 transparent;
+  -webkit-text-stroke:1px var(--ink);
+  padding:4px;
+}
+.subtitle{text-align:center;font-size:.95rem;color:var(--ink);opacity:.85;max-width:360px}
+
+/* Card */
+.card{
+  background:var(--cream);
+  border:3px solid var(--ink);
+  border-radius:var(--radius-md);
+  padding:14px;
+  box-shadow:4px 4px 0 var(--pink-deep);
+}
+
+/* Difficulty */
+.difficulty-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.difficulty-btn{
+  font-family:inherit;
+  font-weight:800;
+  font-size:.9rem;
+  color:var(--ink);
+  background:var(--bg-2);
+  border:2px solid var(--ink);
+  border-radius:14px;
+  padding:12px 8px;
+  cursor:pointer;
+  min-height:52px;
+  transition:transform .12s ease, box-shadow .12s ease, background .12s ease;
+  box-shadow:2px 2px 0 var(--ink);
+  position:relative;
+}
+.difficulty-btn .emoji{display:block;font-size:1.2rem;margin-bottom:2px}
+.difficulty-btn[aria-pressed="true"]{
+  background:var(--pink);
+  color:var(--cream);
+  transform:translate(1px,1px);
+  box-shadow:1px 1px 0 var(--ink);
+}
+.difficulty-btn:focus-visible{outline:3px solid var(--pink-deep);outline-offset:2px}
+
+.label-sm{
+  font-size:.72rem;font-weight:900;letter-spacing:1.2px;text-transform:uppercase;
+  opacity:.7;margin-bottom:8px;
+}
+
+/* Primary button */
+.btn-primary{
+  font-family:inherit;font-weight:900;font-size:1.1rem;letter-spacing:.5px;
+  color:var(--cream);
+  background:var(--pink);
+  border:3px solid var(--ink);
+  border-radius:var(--radius-md);
+  padding:14px 20px;
+  cursor:pointer;
+  min-height:56px;
+  box-shadow:5px 5px 0 var(--pink-deep);
+  transition:transform .12s ease, box-shadow .12s ease;
+  width:100%;
+}
+.btn-primary:hover{transform:translate(-1px,-1px);box-shadow:6px 6px 0 var(--pink-deep)}
+.btn-primary:active{transform:translate(2px,2px);box-shadow:2px 2px 0 var(--pink-deep)}
+.btn-primary:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:3px 3px 0 var(--pink-deep)}
+
+.btn-secondary{
+  font-family:inherit;font-weight:800;font-size:.95rem;
+  color:var(--ink);
+  background:var(--cream);
+  border:2px solid var(--ink);
+  border-radius:14px;
+  padding:10px 16px;
+  cursor:pointer;
+  min-height:44px;
+  box-shadow:2px 2px 0 var(--ink);
+  transition:transform .12s ease;
+}
+.btn-secondary:hover{transform:translate(-1px,-1px)}
+.btn-secondary:active{transform:translate(1px,1px);box-shadow:1px 1px 0 var(--ink)}
+.btn-secondary:focus-visible{outline:3px solid var(--pink-deep);outline-offset:2px}
+
+.row-btns{display:flex;gap:8px;flex-wrap:wrap}
+.row-btns > *{flex:1}
+
+/* Game screen */
+.game-status{
+  text-align:center;
+  font-weight:800;
+  font-size:1rem;
+  min-height:36px;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  padding:6px 10px;
+  background:var(--cream);
+  border:2px solid var(--ink);
+  border-radius:14px;
+}
+.game-status .turn-indicator{
+  display:inline-block;width:22px;height:22px;border-radius:50%;
+  border:2px solid var(--ink);
+}
+.game-status.player-turn .turn-indicator{background:var(--pink)}
+.game-status.ai-turn .turn-indicator{background:var(--lavender)}
+
+/* Score bar */
+.score-bar{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:8px;
+  font-weight:900;text-align:center;
+}
+.score-bar .col{
+  background:var(--cream);border:2px solid var(--ink);border-radius:12px;
+  padding:8px 4px;
+  box-shadow:2px 2px 0 var(--ink);
+}
+.score-bar .col .lbl{font-size:.7rem;letter-spacing:1px;opacity:.7;text-transform:uppercase}
+.score-bar .col .val{font-size:1.4rem;margin-top:2px}
+.score-bar .col.player .val{color:var(--pink-deep)}
+.score-bar .col.ai .val{color:var(--lavender-deep)}
+
+/* Board */
+.board-wrap{
+  display:flex;justify-content:center;align-items:center;
+  padding:4px 0;
+}
+.board{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:8px;
+  width:min(100%, 380px);
+  aspect-ratio:1/1;
+  padding:12px;
+  background:var(--bg-2);
+  border:3px solid var(--ink);
+  border-radius:var(--radius-lg);
+  box-shadow:6px 6px 0 var(--pink-deep);
+}
+.cell{
+  font-family:inherit;
+  background:var(--cream);
+  border:3px solid var(--ink);
+  border-radius:14px;
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  padding:0;
+  transition:transform .12s ease, background .18s ease, box-shadow .12s ease;
+  box-shadow:2px 2px 0 rgba(62,27,43,.25);
+  position:relative;
+  min-height:44px;min-width:44px;
+  -webkit-tap-highlight-color:transparent;
+}
+.cell:hover:not(.filled):not(:disabled){background:#FFF0F6;transform:translateY(-2px)}
+.cell:active:not(.filled):not(:disabled){transform:translateY(1px)}
+.cell:focus-visible{outline:3px solid var(--pink-deep);outline-offset:2px;z-index:2}
+.cell.filled{cursor:default}
+.cell svg{width:70%;height:70%;display:block;animation:pop .28s cubic-bezier(.34,1.56,.64,1)}
+@keyframes pop{
+  0%{transform:scale(0) rotate(-25deg);opacity:0}
+  100%{transform:scale(1) rotate(0);opacity:1}
+}
+.cell.win{
+  background:#FFD1E0;
+  animation:winPulse .8s ease-in-out infinite alternate;
+}
+@keyframes winPulse{
+  0%{box-shadow:2px 2px 0 rgba(62,27,43,.25), 0 0 0 0 rgba(255,107,160,.5)}
+  100%{box-shadow:2px 2px 0 rgba(62,27,43,.25), 0 0 0 8px rgba(255,107,160,0)}
+}
+.cell.shake{animation:shake .3s ease}
+@keyframes shake{
+  0%,100%{transform:translateX(0)}
+  25%{transform:translateX(-4px)}
+  75%{transform:translateX(4px)}
+}
+
+/* Thinking dots */
+.thinking{display:inline-flex;gap:4px;margin-left:6px}
+.thinking span{
+  width:6px;height:6px;border-radius:50%;background:var(--lavender-deep);
+  animation:dot 1s infinite ease-in-out;
+}
+.thinking span:nth-child(2){animation-delay:.15s}
+.thinking span:nth-child(3){animation-delay:.3s}
+@keyframes dot{
+  0%,80%,100%{transform:scale(.6);opacity:.4}
+  40%{transform:scale(1);opacity:1}
+}
+
+/* Modals */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(62,27,43,.55);
+  display:none;align-items:center;justify-content:center;
+  padding:16px;
+  z-index:100;
+  animation:fadeIn .2s ease;
+  -webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);
+}
+.modal-overlay.active{display:flex}
+.modal{
+  background:var(--cream);
+  border:3px solid var(--ink);
+  border-radius:var(--radius-lg);
+  padding:20px;
+  max-width:420px;width:100%;
+  box-shadow:6px 6px 0 var(--pink-deep);
+  animation:modalIn .3s cubic-bezier(.34,1.56,.64,1);
+  max-height:calc(100dvh - 32px);
+  overflow-y:auto;
+}
+@keyframes modalIn{
+  0%{transform:scale(.85) translateY(20px);opacity:0}
+  100%{transform:scale(1) translateY(0);opacity:1}
+}
+.modal h2{
+  font-family:var(--font-display);
+  font-size:1.6rem;
+  text-align:center;
+  margin-bottom:12px;
+  color:var(--pink-deep);
+  letter-spacing:-.3px;
+}
+.modal p{text-align:center;margin-bottom:14px;line-height:1.5;font-size:.95rem}
+.modal .modal-actions{display:flex;flex-direction:column;gap:8px}
+
+.setting-row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:10px 0;border-bottom:2px dashed rgba(62,27,43,.2);
+}
+.setting-row:last-child{border-bottom:none}
+.setting-row label{font-weight:800;font-size:.95rem}
+.toggle{
+  width:56px;height:32px;background:var(--bg-2);border:2px solid var(--ink);
+  border-radius:999px;position:relative;cursor:pointer;transition:background .18s ease;
+  min-height:32px;min-width:56px;
+}
+.toggle::after{
+  content:"";position:absolute;top:2px;left:2px;width:24px;height:24px;
+  background:var(--cream);border:2px solid var(--ink);border-radius:50%;
+  transition:transform .2s ease;
+}
+.toggle[aria-checked="true"]{background:var(--pink)}
+.toggle[aria-checked="true"]::after{transform:translateX(24px)}
+.toggle:focus-visible{outline:3px solid var(--pink-deep);outline-offset:2px}
+
+.result-emoji{font-size:3.2rem;display:block;text-align:center;margin:6px 0 4px}
+
+/* How-to list */
+.howto-list{list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:8px;text-align:left}
+.howto-list li{
+  display:flex;gap:10px;align-items:flex-start;
+  font-size:.9rem;line-height:1.4;
+  padding:8px 10px;background:var(--bg-2);border-radius:10px;border:2px solid var(--ink);
+}
+.howto-list .num{
+  flex-shrink:0;width:24px;height:24px;border-radius:50%;
+  background:var(--pink);color:var(--cream);font-weight:900;
+  display:flex;align-items:center;justify-content:center;font-size:.8rem;
+  border:2px solid var(--ink);
+}
+
+/* Misc */
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.sr-only{
+  position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+  clip:rect(0,0,0,0);white-space:nowrap;border:0;
+}
+
+/* Small screens */
+@media (max-width:360px){
+  .title-lg{font-size:1.7rem}
+  .brand{font-size:.85rem}
+  .score-mini{font-size:.7rem}
+  .score-mini .pill{padding:2px 6px;min-height:24px}
+  .board{padding:8px;gap:6px}
+  .difficulty-btn{font-size:.8rem;padding:10px 4px}
+}
+
+/* Landscape compact */
+@media (orientation:landscape) and (max-height:520px){
+  .menu-hero{padding:4px;flex-direction:row;gap:16px}
+  .mascot{width:70px;height:70px}
+  .title-lg{font-size:1.5rem}
+  #app{gap:8px}
+  .topbar{padding:6px 10px}
+  .board{width:min(100%,260px);padding:8px;gap:6px}
+  .game-status{font-size:.85rem;min-height:30px;padding:4px 8px}
+  .score-bar .col .val{font-size:1.1rem}
+}
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{
+    animation-duration:.01ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:.01ms !important;
+  }
+  .mascot{animation:none}
+}
+</style>
+</head>
+<body>
+<div class="grain" aria-hidden="true"></div>
+
+<main id="app">
+  <header class="topbar">
+    <div class="brand">
+      <svg class="paw" viewBox="0 0 24 24" aria-hidden="true">
+        <ellipse cx="6" cy="7" rx="2.2" ry="2.8" fill="#FF6BA0" stroke="#3E1B2B" stroke-width="1.5"/>
+        <ellipse cx="18" cy="7" rx="2.2" ry="2.8" fill="#FF6BA0" stroke="#3E1B2B" stroke-width="1.5"/>
+        <ellipse cx="12" cy="5.5" rx="2.4" ry="3" fill="#FF6BA0" stroke="#3E1B2B" stroke-width="1.5"/>
+        <ellipse cx="4" cy="12.5" rx="1.8" ry="2.2" fill="#FF6BA0" stroke="#3E1B2B" stroke-width="1.5"/>
+        <ellipse cx="20" cy="12.5" rx="1.8" ry="2.2" fill="#FF6BA0" stroke="#3E1B2B" stroke-width="1.5"/>
+        <path d="M12 12c-4 0-6 3-6 5.5s2.4 3 6 3 6-.5 6-3S16 12 12 12z" fill="#FF6BA0" stroke="#3E1B2B" stroke-width="1.5"/>
+      </svg>
+      <span>Kitty TTT</span>
+    </div>
+    <div class="score-mini" aria-live="polite">
+      <span class="pill p" title="Kamu"><span class="dot"></span><span id="mini-player">0</span></span>
+      <span class="pill a" title="AI"><span class="dot"></span><span id="mini-ai">0</span></span>
+    </div>
+  </header>
+
+  <!-- MENU SCREEN -->
+  <section id="screen-menu" class="screen active" aria-label="Menu utama">
+    <div class="menu-hero">
+      <svg class="mascot" viewBox="0 0 120 120" aria-hidden="true">
+        <path d="M22 40 L14 10 L44 26" fill="#FFE0EC" stroke="#3E1B2B" stroke-width="4" stroke-linejoin="round"/>
+        <path d="M98 40 L106 10 L76 26" fill="#FFE0EC" stroke="#3E1B2B" stroke-width="4" stroke-linejoin="round"/>
+        <circle cx="60" cy="66" r="42" fill="#FFF3F7" stroke="#3E1B2B" stroke-width="4"/>
+        <circle cx="42" cy="62" r="5" fill="#3E1B2B"/>
+        <circle cx="78" cy="62" r="5" fill="#3E1B2B"/>
+        <circle cx="43.5" cy="60.5" r="1.6" fill="#FFFCF7"/>
+        <circle cx="79.5" cy="60.5" r="1.6" fill="#FFFCF7"/>
+        <ellipse cx="32" cy="76" rx="6" ry="4" fill="#FFB3CE" opacity=".9"/>
+        <ellipse cx="88" cy="76" rx="6" ry="4" fill="#FFB3CE" opacity=".9"/>
+        <path d="M54 74 Q60 82 66 74" fill="none" stroke="#3E1B2B" stroke-width="3.5" stroke-linecap="round"/>
+        <path d="M60 68 l-3 -4 M60 68 l3 -4" fill="#D63B7D" stroke="#3E1B2B" stroke-width="2" stroke-linejoin="round"/>
+        <path d="M18 66 L4 62 M18 74 L2 74 M20 82 L6 86" stroke="#3E1B2B" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M102 66 L116 62 M102 74 L118 74 M100 82 L114 86" stroke="#3E1B2B" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
+      <h1 class="title-lg">Kitty Tic Tac Toe</h1>
+      <p class="subtitle">Kalahkan Kitty AI! Kamu adalah <strong style="color:var(--pink-deep)">X</strong>, AI adalah <strong style="color:var(--lavender-deep)">O</strong>.</p>
+    </div>
+
+    <div class="card">
+      <p class="label-sm">Pilih kesulitan</p>
+      <div class="difficulty-grid" role="group" aria-label="Tingkat kesulitan">
+        <button class="difficulty-btn" data-diff="mudah" aria-pressed="false" type="button">
+          <span class="emoji">🌸</span>Mudah
+        </button>
+        <button class="difficulty-btn" data-diff="sedang" aria-pressed="true" type="button">
+          <span class="emoji">🎀</span>Sedang
+        </button>
+        <button class="difficulty-btn" data-diff="sulit" aria-pressed="false" type="button">
+          <span class="emoji">💎</span>Sulit
+        </button>
+      </div>
+    </div>
+
+    <button class="btn-primary" id="btn-play" type="button">Main Sekarang</button>
+
+    <div class="row-btns">
+      <button class="btn-secondary" id="btn-howto" type="button">Cara Main</button>
+      <button class="btn-secondary" id="btn-settings" type="button">Pengaturan</button>
+    </div>
+  </section>
+
+  <!-- GAME SCREEN -->
+  <section id="screen-game" class="screen" aria-label="Papan permainan">
+    <div class="score-bar" aria-live="polite">
+      <div class="col player"><div class="lbl">Kamu</div><div class="val" id="score-player">0</div></div>
+      <div class="col draw"><div class="lbl">Seri</div><div class="val" id="score-draw">0</div></div>
+      <div class="col ai"><div class="lbl">Kitty</div><div class="val" id="score-ai">0</div></div>
+    </div>
+
+    <div class="game-status player-turn" id="game-status" aria-live="polite">
+      <span class="turn-indicator" aria-hidden="true"></span>
+      <span id="status-text">Giliranmu — pilih kotak</span>
+    </div>
+
+    <div class="board-wrap">
+      <div class="board" id="board" role="grid" aria-label="Papan 3x3">
+        <!-- cells injected by JS -->
+      </div>
+    </div>
+
+    <div class="row-btns">
+      <button class="btn-secondary" id="btn-back-menu" type="button">Menu</button>
+      <button class="btn-secondary" id="btn-restart" type="button">Ulang Ronde</button>
+    </div>
+  </section>
+</main>
+
+<!-- HOW TO MODAL -->
+<div class="modal-overlay" id="modal-howto" role="dialog" aria-modal="true" aria-labelledby="howto-title">
+  <div class="modal">
+    <h2 id="howto-title">Cara Main</h2>
+    <ol class="howto-list">
+      <li><span class="num">1</span><div>Kamu adalah <strong>X</strong> (pink). Klik kotak kosong untuk menempatkan X-mu.</div></li>
+      <li><span class="num">2</span><div>Kitty <strong>O</strong> (lavender) akan bergerak setelah giliranmu.</div></li>
+      <li><span class="num">3</span><div>Menang jika tiga X-mu sejajar: horizontal, vertikal, atau diagonal.</div></li>
+      <li><span class="num">4</span><div>Ronde berakhir seri jika papan penuh tanpa pemenang.</div></li>
+      <li><span class="num">5</span><div>Pilih tingkat kesulitan di menu. <em>Sulit</em> = Kitty nyaris tak bisa dikalahkan.</div></li>
+    </ol>
+    <div class="modal-actions">
+      <button class="btn-primary" id="howto-close" type="button">Mengerti</button>
+    </div>
+  </div>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div class="modal-overlay" id="modal-settings" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+  <div class="modal">
+    <h2 id="settings-title">Pengaturan</h2>
+    <div class="setting-row">
+      <label for="toggle-sound">Efek Suara</label>
+      <button class="toggle" id="toggle-sound" role="switch" aria-checked="true" aria-label="Efek suara" type="button"></button>
+    </div>
+    <div class="setting-row">
+      <label for="toggle-haptics">Getaran</label>
+      <button class="toggle" id="toggle-haptics" role="switch" aria-checked="true" aria-label="Getaran" type="button"></button>
+    </div>
+    <div class="setting-row" style="border-bottom:none;padding-top:14px;flex-direction:column;gap:8px">
+      <button class="btn-secondary" id="btn-fullscreen" type="button" style="width:100%">Layar Penuh</button>
+      <button class="btn-secondary" id="btn-reset-score" type="button" style="width:100%">Reset Skor & Data</button>
+    </div>
+    <div class="modal-actions" style="margin-top:14px">
+      <button class="btn-primary" id="settings-close" type="button">Tutup</button>
+    </div>
+  </div>
+</div>
+
+<!-- RESULT MODAL -->
+<div class="modal-overlay" id="modal-result" role="dialog" aria-modal="true" aria-labelledby="result-title">
+  <div class="modal">
+    <span class="result-emoji" id="result-emoji" aria-hidden="true">✨</span>
+    <h2 id="result-title">Hasil</h2>
+    <p id="result-desc">…</p>
+    <div class="modal-actions">
+      <button class="btn-primary" id="result-again" type="button">Main Lagi</button>
+      <button class="btn-secondary" id="result-menu" type="button">Menu Utama</button>
+    </div>
+  </div>
+</div>
+
+<!-- PAUSE OVERLAY (untuk tab hidden) -->
+<div class="modal-overlay" id="modal-pause" role="dialog" aria-modal="true" aria-labelledby="pause-title">
+  <div class="modal">
+    <h2 id="pause-title">Jeda</h2>
+    <p>Ronde dijeda karena kamu pindah tab. Lanjutkan saat siap.</p>
+    <div class="modal-actions">
+      <button class="btn-primary" id="pause-resume" type="button">Lanjutkan</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  // ============ KONSTANTA ============
+  const STORAGE_KEY = 'kitty_ttt_v1';
+  const WINNING_LINES = [
+    [0,1,2],[3,4,5],[6,7,8],
+    [0,3,6],[1,4,7],[2,5,8],
+    [0,4,8],[2,4,6]
+  ];
+  const DIFFICULTIES = ['mudah','sedang','sulit'];
+  const AI_DELAY_MIN = 400;
+  const AI_DELAY_MAX = 800;
+
+  // ============ STATE ============
+  const state = {
+    screen: 'menu',
+    difficulty: 'sedang',
+    sound: true,
+    haptics: true,
+    firstVisit: true,
+    score: { player: 0, ai: 0, draw: 0 },
+    board: Array(9).fill(null),
+    currentPlayer: 'X', // X = player, O = AI
+    gameActive: false,
+    aiThinking: false,
+    roundResultShown: false
+  };
+
+  let aiTimer = null;
+  let audioCtx = null;
+  let wakeLock = null;
+  let prevScreenBeforePause = null;
+
+  // ============ PERSISTENSI ============
+  function loadState(){
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      const data = JSON.parse(raw);
+      if (!data || typeof data !== 'object') return;
+      if (DIFFICULTIES.includes(data.difficulty)) state.difficulty = data.difficulty;
+      if (typeof data.sound === 'boolean') state.sound = data.sound;
+      if (typeof data.haptics === 'boolean') state.haptics = data.haptics;
+      if (typeof data.firstVisit === 'boolean') state.firstVisit = data.firstVisit;
+      if (data.score && typeof data.score === 'object'){
+        state.score.player = Math.max(0, Number(data.score.player) || 0);
+        state.score.ai = Math.max(0, Number(data.score.ai) || 0);
+        state.score.draw = Math.max(0, Number(data.score.draw) || 0);
+      }
+    } catch(e){
+      // data korup — abaikan, pakai default
+      try { localStorage.removeItem(STORAGE_KEY); } catch(_){}
+    }
+  }
+
+  function saveState(){
+    try {
+      const data = {
+        difficulty: state.difficulty,
+        sound: state.sound,
+        haptics: state.haptics,
+        firstVisit: state.firstVisit,
+        score: state.score
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    } catch(e){
+      // Quota penuh — coba reset
+      try { localStorage.removeItem(STORAGE_KEY); } catch(_){}
+    }
+  }
+
+  // ============ ELEMEN ============
+  const $ = (id) => document.getElementById(id);
+  const els = {
+    screenMenu: $('screen-menu'),
+    screenGame: $('screen-game'),
+    board: $('board'),
+    gameStatus: $('game-status'),
+    statusText: $('status-text'),
+    scorePlayer: $('score-player'),
+    scoreAi: $('score-ai'),
+    scoreDraw: $('score-draw'),
+    miniPlayer: $('mini-player'),
+    miniAi: $('mini-ai'),
+    btnPlay: $('btn-play'),
+    btnHowto: $('btn-howto'),
+    btnSettings: $('btn-settings'),
+    btnBackMenu: $('btn-back-menu'),
+    btnRestart: $('btn-restart'),
+    modalHowto: $('modal-howto'),
+    modalSettings: $('modal-settings'),
+    modalResult: $('modal-result'),
+    modalPause: $('modal-pause'),
+    howtoClose: $('howto-close'),
+    settingsClose: $('settings-close'),
+    toggleSound: $('toggle-sound'),
+    toggleHaptics: $('toggle-haptics'),
+    btnFullscreen: $('btn-fullscreen'),
+    btnResetScore: $('btn-reset-score'),
+    resultEmoji: $('result-emoji'),
+    resultTitle: $('result-title'),
+    resultDesc: $('result-desc'),
+    resultAgain: $('result-again'),
+    resultMenu: $('result-menu'),
+    pauseResume: $('pause-resume')
+  };
+
+  // ============ AUDIO ============
+  function ensureAudio(){
+    if (audioCtx) return audioCtx;
+    try {
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      if (!Ctx) return null;
+      audioCtx = new Ctx();
+    } catch(e){ audioCtx = null; }
+    return audioCtx;
+  }
+
+  function playTone(freq, dur, type){
+    if (!state.sound) return;
+    const ctx = ensureAudio();
+    if (!ctx) return;
+    if (ctx.state === 'suspended') ctx.resume().catch(()=>{});
+    try {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = type || 'sine';
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.15, ctx.currentTime + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + dur);
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.start(); osc.stop(ctx.currentTime + dur + 0.02);
+    } catch(e){ /* diam */ }
+  }
+
+  function sfxPlayerMove(){ playTone(660, 0.1, 'triangle'); }
+  function sfxAIMove(){ playTone(420, 0.12, 'sine'); }
+  function sfxWin(){ playTone(880, 0.12); setTimeout(()=>playTone(1100, 0.18), 100); setTimeout(()=>playTone(1320, 0.22), 220); }
+  function sfxLose(){ playTone(320, 0.15, 'sawtooth'); setTimeout(()=>playTone(220, 0.25, 'sawtooth'), 130); }
+  function sfxDraw(){ playTone(520, 0.15); setTimeout(()=>playTone(520, 0.15), 180); }
+  function sfxTap(){ playTone(880, 0.05, 'square'); }
+
+  // ============ HAPTICS ============
+  function vibrate(pattern){
+    if (!state.haptics) return;
+    if (navigator.vibrate) { try { navigator.vibrate(pattern); } catch(e){} }
+  }
+
+  // ============ SVG MARKS ============
+  function svgX(){
+    return '<svg viewBox="0 0 100 100" aria-hidden="true">' +
+      '<path d="M24 24 L76 76 M76 24 L24 76" stroke="#D63B7D" stroke-width="14" stroke-linecap="round" fill="none"/>' +
+      '<circle cx="50" cy="50" r="8" fill="#FF6BA0" stroke="#3E1B2B" stroke-width="2"/>' +
+      '<circle cx="50" cy="50" r="3" fill="#FFFCF7"/>' +
+      '</svg>';
+  }
+
+  function svgO(){
+    return '<svg viewBox="0 0 100 100" aria-hidden="true">' +
+      '<circle cx="50" cy="54" r="26" stroke="#7E56A8" stroke-width="12" fill="none"/>' +
+      '<path d="M30 32 L24 16 L40 26 Z" fill="#7E56A8" stroke="#3E1B2B" stroke-width="2" stroke-linejoin="round"/>' +
+      '<path d="M70 32 L76 16 L60 26 Z" fill="#7E56A8" stroke="#3E1B2B" stroke-width="2" stroke-linejoin="round"/>' +
+      '<circle cx="42" cy="54" r="2.5" fill="#FFFCF7"/>' +
+      '<circle cx="58" cy="54" r="2.5" fill="#FFFCF7"/>' +
+      '<path d="M46 62 Q50 65 54 62" stroke="#FFFCF7" stroke-width="1.8" fill="none" stroke-linecap="round"/>' +
+      '</svg>';
+  }
+
+  // ============ UI RENDER ============
+  function showScreen(name){
+    state.screen = name;
+    els.screenMenu.classList.toggle('active', name === 'menu');
+    els.screenGame.classList.toggle('active', name === 'game');
+  }
+
+  function updateScores(){
+    els.scorePlayer.textContent = state.score.player;
+    els.scoreAi.textContent = state.score.ai;
+    els.scoreDraw.textContent = state.score.draw;
+    els.miniPlayer.textContent = state.score.player;
+    els.miniAi.textContent = state.score.ai;
+  }
+
+  function setStatus(text, turnClass, thinking){
+    els.statusText.textContent = text;
+    els.gameStatus.classList.remove('player-turn','ai-turn');
+    if (turnClass) els.gameStatus.classList.add(turnClass);
+    // hapus thinking dots lama
+    const old = els.gameStatus.querySelector('.thinking');
+    if (old) old.remove();
+    if (thinking){
+      const dots = document.createElement('span');
+      dots.className = 'thinking';
+      dots.setAttribute('aria-hidden','true');
+      dots.innerHTML = '<span></span><span></span><span></span>';
+      els.gameStatus.appendChild(dots);
+    }
+  }
+
+  function renderBoard(){
+    els.board.innerHTML = '';
+    for (let i = 0; i < 9; i++){
+      const btn = document.createElement('button');
+      btn.className = 'cell';
+      btn.type = 'button';
+      btn.setAttribute('role','gridcell');
+      btn.dataset.index = String(i);
+      const v = state.board[i];
+      if (v === 'X'){ btn.innerHTML = svgX(); btn.classList.add('filled'); btn.disabled = true; btn.setAttribute('aria-label', 'X di baris ' + (Math.floor(i/3)+1) + ' kolom ' + (i%3+1)); }
+      else if (v === 'O'){ btn.innerHTML = svgO(); btn.classList.add('filled'); btn.disabled = true; btn.setAttribute('aria-label', 'O di baris ' + (Math.floor(i/3)+1) + ' kolom ' + (i%3+1)); }
+      else { btn.setAttribute('aria-label', 'Kotak kosong baris ' + (Math.floor(i/3)+1) + ' kolom ' + (i%3+1)); }
+      if (!state.gameActive || v !== null) btn.disabled = true;
+      btn.addEventListener('click', onCellClick);
+      els.board.appendChild(btn);
+    }
+  }
+
+  function highlightWin(line){
+    if (!line) return;
+    line.forEach(idx => {
+      const cell = els.board.querySelector('[data-index="' + idx + '"]');
+      if (cell) cell.classList.add('win');
+    });
+  }
+
+  // ============ GAME LOGIC ============
+  function checkWinner(board){
+    for (const line of WINNING_LINES){
+      const [a,b,c] = line;
+      if (board[a] && board[a] === board[b] && board[a] === board[c]){
+        return { winner: board[a], line: line };
+      }
+    }
+    if (board.every(v => v !== null)) return { winner: 'draw', line: null };
+    return null;
+  }
+
+  function emptyIndexes(board){
+    const arr = [];
+    for (let i = 0; i < 9; i++) if (board[i] === null) arr.push(i);
+    return arr;
+  }
+
+  function minimax(board, depth, isMax, aiMark, humanMark){
+    const result = checkWinner(board);
+    if (result){
+      if (result.winner === aiMark) return { score: 10 - depth };
+      if (result.winner === humanMark) return { score: depth - 10 };
+      return { score: 0 };
+    }
+    const empties = emptyIndexes(board);
+    if (isMax){
+      let best = { score: -Infinity, index: -1 };
+      for (const i of empties){
+        board[i] = aiMark;
+        const r = minimax(board, depth + 1, false, aiMark, humanMark);
+        board[i] = null;
+        if (r.score > best.score) best = { score: r.score, index: i };
+      }
+      return best;
+    } else {
+      let best = { score: Infinity, index: -1 };
+      for (const i of empties){
+        board[i] = humanMark;
+        const r = minimax(board, depth + 1, true, aiMark, humanMark);
+        board[i] = null;
+        if (r.score < best.score) best = { score: r.score, index: i };
+      }
+      return best;
+    }
+  }
+
+  function getBestMove(board){
+    const r = minimax(board.slice(), 0, true, 'O', 'X');
+    return r.index;
+  }
+
+  function pickAIMove(){
+    const empties = emptyIndexes(state.board);
+    if (empties.length === 0) return -1;
+
+    if (state.difficulty === 'sulit'){
+      const best = getBestMove(state.board);
+      return best >= 0 ? best : empties[0];
+    }
+
+    if (state.difficulty === 'sedang'){
+      // 65% best move, 35% random
+      if (Math.random() < 0.65){
+        const best = getBestMove(state.board);
+        if (best >= 0) return best;
+      }
+      return empties[Math.floor(Math.random() * empties.length)];
+    }
+
+    // mudah — 20% cegah menang instan, sisanya random
+    if (Math.random() < 0.2){
+      // cek: apakah player bisa menang berikutnya?
+      for (const i of empties){
+        const copy = state.board.slice();
+        copy[i] = 'X';
+        const w = checkWinner(copy);
+        if (w && w.winner === 'X') return i;
+      }
+    }
+    return empties[Math.floor(Math.random() * empties.length)];
+  }
+
+  function startGame(){
+    cancelAI();
+    state.board = Array(9).fill(null);
+    state.currentPlayer = 'X';
+    state.gameActive = true;
+    state.aiThinking = false;
+    state.roundResultShown = false;
+    showScreen('game');
+    renderBoard();
+    setStatus('Giliranmu — pilih kotak', 'player-turn', false);
+    updateScores();
+    requestWakeLock();
+  }
+
+  function endGame(winner, line){
+    state.gameActive = false;
+    state.aiThinking = false;
+    state.roundResultShown = true;
+    highlightWin(line);
+
+    if (winner === 'X'){
+      state.score.player++;
+      sfxWin();
+      vibrate([30, 40, 30, 40, 60]);
+      setStatus('Kamu menang! 🎉', 'player-turn', false);
+    } else if (winner === 'O'){
+      state.score.ai++;
+      sfxLose();
+      vibrate(120);
+      setStatus('Kitty menang 🐱', 'ai-turn', false);
+    } else {
+      state.score.draw++;
+      sfxDraw();
+      vibrate(60);
+      setStatus('Seri — papan penuh', 'player-turn', false);
+    }
+    updateScores();
+    saveState();
+
+    setTimeout(() => showResult(winner), 800);
+    releaseWakeLock();
+  }
+
+  function showResult(winner){
+    let emoji = '✨', title = '', desc = '';
+    if (winner === 'X'){
+      emoji = '🎀'; title = 'Kamu Menang!';
+      desc = 'Kamu mengalahkan Kitty di level ' + capitalize(state.difficulty) + '.';
+    } else if (winner === 'O'){
+      emoji = '🐱'; title = 'Kitty Menang';
+      desc = 'Coba lagi, atau turunkan kesulitan di menu.';
+    } else {
+      emoji = '🤝'; title = 'Seri';
+      desc = 'Papan penuh tanpa pemenang. Ronde baru?';
+    }
+    els.resultEmoji.textContent = emoji;
+    els.resultTitle.textContent = title;
+    els.resultDesc.textContent = desc;
+    els.modalResult.classList.add('active');
+  }
+
+  function capitalize(s){ return s.charAt(0).toUpperCase() + s.slice(1); }
+
+  // ============ INPUT HANDLERS ============
+  function onCellClick(e){
+    const idx = Number(e.currentTarget.dataset.index);
+    if (!state.gameActive) return;
+    if (state.currentPlayer !== 'X') return;
+    if (state.board[idx] !== null) return;
+    if (state.aiThinking) return;
+
+    // Place X
+    state.board[idx] = 'X';
+    sfxPlayerMove();
+    vibrate(20);
+    renderBoard();
+    const res = checkWinner(state.board);
+    if (res){
+      endGame(res.winner, res.line);
+      return;
+    }
+    // turn to AI
+    state.currentPlayer = 'O';
+    state.aiThinking = true;
+    setStatus('Kitty berpikir', 'ai-turn', true);
+    scheduleAI();
+  }
+
+  function scheduleAI(){
+    cancelAI();
+    const delay = AI_DELAY_MIN + Math.random() * (AI_DELAY_MAX - AI_DELAY_MIN);
+    aiTimer = setTimeout(() => {
+      aiTimer = null;
+      makeAIMove();
+    }, delay);
+  }
+
+  function cancelAI(){
+    if (aiTimer){ clearTimeout(aiTimer); aiTimer = null; }
+  }
+
+  function makeAIMove(){
+    if (!state.gameActive || state.currentPlayer !== 'O') return;
+    const move = pickAIMove();
+    if (move < 0){
+      // no moves left
+      state.aiThinking = false;
+      const res = checkWinner(state.board);
+      endGame(res ? res.winner : 'draw', res ? res.line : null);
+      return;
+    }
+    state.board[move] = 'O';
+    sfxAIMove();
+    state.aiThinking = false;
+    renderBoard();
+    const res = checkWinner(state.board);
+    if (res){
+      endGame(res.winner, res.line);
+      return;
+    }
+    state.currentPlayer = 'X';
+    setStatus('Giliranmu — pilih kotak', 'player-turn', false);
+  }
+
+  // ============ MENU / MODAL HANDLERS ============
+  function goToMenu(){
+    cancelAI();
+    releaseWakeLock();
+    state.gameActive = false;
+    state.aiThinking = false;
+    closeAllModals();
+    showScreen('menu');
+    updateScores();
+  }
+
+  function closeAllModals(){
+    els.modalHowto.classList.remove('active');
+    els.modalSettings.classList.remove('active');
+    els.modalResult.classList.remove('active');
+    els.modalPause.classList.remove('active');
+  }
+
+  function openHowto(){ els.modalHowto.classList.add('active'); sfxTap(); }
+  function openSettings(){
+    els.toggleSound.setAttribute('aria-checked', state.sound ? 'true' : 'false');
+    els.toggleHaptics.setAttribute('aria-checked', state.haptics ? 'true' : 'false');
+    els.modalSettings.classList.add('active');
+    sfxTap();
+  }
+
+  // ============ SETTINGS ============
+  function toggleSound(){
+    state.sound = !state.sound;
+    els.toggleSound.setAttribute('aria-checked', state.sound ? 'true' : 'false');
+    saveState();
+    if (state.sound) sfxTap();
+  }
+  function toggleHaptics(){
+    state.haptics = !state.haptics;
+    els.toggleHaptics.setAttribute('aria-checked', state.haptics ? 'true' : 'false');
+    saveState();
+    if (state.haptics) vibrate(15);
+  }
+
+  async function toggleFullscreen(){
+    try {
+      const doc = document.documentElement;
+      if (!document.fullscreenElement){
+        if (doc.requestFullscreen) await doc.requestFullscreen();
+        else if (doc.webkitRequestFullscreen) doc.webkitRequestFullscreen();
+        else {
+          els.btnFullscreen.textContent = 'Layar penuh tidak didukung';
+          setTimeout(() => els.btnFullscreen.textContent = 'Layar Penuh', 1500);
+        }
+      } else {
+        if (document.exitFullscreen) await document.exitFullscreen();
+        else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+      }
+    } catch(e){
+      // diam
+    }
+  }
+
+  function resetAllData(){
+    if (!confirm('Reset skor, pengaturan, dan tutorial? Tindakan ini tidak bisa dibatalkan.')) return;
+    state.score = { player: 0, ai: 0, draw: 0 };
+    state.difficulty = 'sedang';
+    state.sound = true;
+    state.haptics = true;
+    state.firstVisit = true;
+    try { localStorage.removeItem(STORAGE_KEY); } catch(e){}
+    saveState();
+    updateScores();
+    document.querySelectorAll('.difficulty-btn').forEach(b => {
+      b.setAttribute('aria-pressed', b.dataset.diff === 'sedang' ? 'true' : 'false');
+    });
+    els.toggleSound.setAttribute('aria-checked','true');
+    els.toggleHaptics.setAttribute('aria-checked','true');
+    alert('Data telah direset. Skor kembali ke nol.');
+  }
+
+  // ============ WAKE LOCK ============
+  async function requestWakeLock(){
+    if (!('wakeLock' in navigator)) return;
+    try {
+      wakeLock = await navigator.wakeLock.request('screen');
+      wakeLock.addEventListener('release', () => { wakeLock = null; });
+    } catch(e){ wakeLock = null; }
+  }
+
+  function releaseWakeLock(){
+    if (wakeLock){
+      try { wakeLock.release(); } catch(e){}
+      wakeLock = null;
+    }
+  }
+
+  // ============ VISIBILITY / PAUSE ============
+  function handleVisibilityChange(){
+    if (document.hidden){
+      if (state.screen === 'game' && state.gameActive && !state.aiThinking){
+        // pause: freeze — since AI acts on timer, cancel it
+        prevScreenBeforePause = state.screen;
+        cancelAI();
+        if (audioCtx && audioCtx.state === 'running') audioCtx.suspend().catch(()=>{});
+        releaseWakeLock();
+        els.modalPause.classList.add('active');
+      }
+    } else {
+      if (audioCtx && audioCtx.state === 'suspended' && state.screen === 'game' && state.gameActive){
+        audioCtx.resume().catch(()=>{});
+      }
+      if (!els.modalPause.classList.contains('active') && state.screen === 'game' && state.gameActive){
+        requestWakeLock();
+      }
+    }
+  }
+
+  function resumeFromPause(){
+    els.modalPause.classList.remove('active');
+    if (state.gameActive && state.currentPlayer === 'O'){
+      state.aiThinking = true;
+      setStatus('Kitty berpikir', 'ai-turn', true);
+      scheduleAI();
+    }
+    requestWakeLock();
+    if (audioCtx && audioCtx.state === 'suspended'){
+      audioCtx.resume().catch(()=>{});
+    }
+  }
+
+  // ============ BEFORE UNLOAD ============
+  function handleBeforeUnload(e){
+    if (state.screen === 'game' && state.gameActive){
+      e.preventDefault();
+      e.returnValue = '';
+      return '';
+    }
+  }
+
+  // ============ ANDROID BACK ============
+  let backGuardPushed = false;
+  function setupBackGuard(){
+    try {
+      if (!backGuardPushed){
+        history.pushState({ kitty: true }, '', location.href);
+        backGuardPushed = true;
+      }
+      window.addEventListener('popstate', () => {
+        // user pressed back
+        if (state.screen === 'game'){
+          if (state.gameActive){
+            const ok = confirm('Keluar dari ronde aktif? Progres ronde ini akan hilang.');
+            if (!ok){
+              // push again to keep guard
+              history.pushState({ kitty: true }, '', location.href);
+              return;
+            }
+          }
+          goToMenu();
+          history.pushState({ kitty: true }, '', location.href);
+        } else if (document.querySelector('.modal-overlay.active')){
+          closeAllModals();
+          history.pushState({ kitty: true }, '', location.href);
+        } else {
+          history.pushState({ kitty: true }, '', location.href);
+        }
+      });
+    } catch(e){ /* ignore */ }
+  }
+
+  // ============ EVENT BINDING ============
+  function bindEvents(){
+    els.btnPlay.addEventListener('click', () => {
+      ensureAudio();
+      startGame();
+    });
+    els.btnHowto.addEventListener('click', openHowto);
+    els.btnSettings.addEventListener('click', openSettings);
+    els.btnBackMenu.addEventListener('click', () => {
+      if (state.gameActive){
+        if (!confirm('Kembali ke menu? Ronde aktif akan hilang.')) return;
+      }
+      goToMenu();
+    });
+    els.btnRestart.addEventListener('click', () => {
+      if (state.gameActive){
+        if (!confirm('Mulai ulang ronde ini?')) return;
+      }
+      startGame();
+    });
+    els.howtoClose.addEventListener('click', () => els.modalHowto.classList.remove('active'));
+    els.settingsClose.addEventListener('click', () => els.modalSettings.classList.remove('active'));
+    els.toggleSound.addEventListener('click', toggleSound);
+    els.toggleHaptics.addEventListener('click', toggleHaptics);
+    els.btnFullscreen.addEventListener('click', toggleFullscreen);
+    els.btnResetScore.addEventListener('click', resetAllData);
+    els.resultAgain.addEventListener('click', () => {
+      els.modalResult.classList.remove('active');
+      startGame();
+    });
+    els.resultMenu.addEventListener('click', () => {
+      els.modalResult.classList.remove('active');
+      goToMenu();
+    });
+    els.pauseResume.addEventListener('click', resumeFromPause);
+
+    document.querySelectorAll('.difficulty-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const d = btn.dataset.diff;
+        if (!DIFFICULTIES.includes(d)) return;
+        state.difficulty = d;
+        document.querySelectorAll('.difficulty-btn').forEach(b => {
+          b.setAttribute('aria-pressed', b === btn ? 'true' : 'false');
+        });
+        saveState();
+        sfxTap();
+      });
+    });
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener('blur', () => {
+      if (audioCtx && audioCtx.state === 'running') audioCtx.suspend().catch(()=>{});
+    });
+
+    // Prevent context menu on game area (long-press)
+    els.board.addEventListener('contextmenu', e => e.preventDefault());
+    els.board.addEventListener('dragstart', e => e.preventDefault());
+
+    // Escape closes modals
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape'){
+        if (document.querySelector('.modal-overlay.active')){
+          closeAllModals();
+        } else if (state.screen === 'game'){
+          if (state.gameActive && !confirm('Kembali ke menu? Ronde aktif akan hilang.')) return;
+          goToMenu();
+        }
+      }
+    });
+  }
+
+  // ============ RESIZE / ORIENTATION ============
+  let resizeTimer = null;
+  function handleResize(){
+    if (resizeTimer) clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      // re-layout papan sudah otomatis lewat CSS grid. Tidak perlu manual canvas resize.
+      // Tapi kita pastikan tidak ada overflow horizontal.
+      document.documentElement.style.overflowX = 'hidden';
+    }, 150);
+  }
+
+  // ============ INIT ============
+  function init(){
+    loadState();
+    // apply difficulty
+    document.querySelectorAll('.difficulty-btn').forEach(b => {
+      b.setAttribute('aria-pressed', b.dataset.diff === state.difficulty ? 'true' : 'false');
+    });
+    els.toggleSound.setAttribute('aria-checked', state.sound ? 'true' : 'false');
+    els.toggleHaptics.setAttribute('aria-checked', state.haptics ? 'true' : 'false');
+    updateScores();
+    bindEvents();
+    setupBackGuard();
+    window.addEventListener('resize', handleResize);
+    if (window.visualViewport){
+      window.visualViewport.addEventListener('resize', handleResize);
+    }
+    // show onboarding / howto for first visit
+    if (state.firstVisit){
+      setTimeout(() => {
+        els.modalHowto.classList.add('active');
+      }, 400);
+      state.firstVisit = false;
+      saveState();
+    }
+  }
+
+  if (document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+</body>
+</html>
